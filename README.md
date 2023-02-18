@@ -19,7 +19,7 @@ Six single-cell (sc) omics and one bulk omics include:
 Ursa can be installed in R via the command:
 ```sh
 install.packages("devtools")
-devtools::install_github("eudoraleer/Ursa")
+devtools::install_github("singlecellomics/Ursa")
 ```
 Please download the example sample files and their meta files from the following [__link__](https://www.dropbox.com/sh/zdi0554bf07spoo/AAAZNk_jsrFa53tg4CsGfU2ua?dl=0) with respect to the omics you will be running. Original file sources can be found below. Multiple samples are supported if information in the meta data is corrected provided.
 
