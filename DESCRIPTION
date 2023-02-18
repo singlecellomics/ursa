@@ -1,0 +1,23 @@
+Package: Ursa
+Type: Package
+Title: An Automated Multi-omics Package for Single-cell Analysis
+Version: 1.1.0
+Author: Lu Pan <lu.pan@ki.se>
+Maintainer: Lu Pan <lu.pan@ki.se>
+Description: Ursa contains 7 major single cell omics automated workflows, including scRNA-seq, scATAC-seq, scImmune profiling, spatial transcriptomics, scCNV, CyTOF and flow cytometry.
+License: MIT License
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.1
+Collate: 
+    'common.R'
+    'ini.R'
+    'Alioth.R'
+    'Alkaid.R'
+    'Dubhe.R'
+    'Megrez.R'
+    'Merak.R'
+    'Mizar.R'
+    'Phecda.R'
+biocViews:
+Depends: cowplot,data.table,dplyr,ggbeeswarm,ggplot2,ggpubr,ggraph,ggrepel,ggridges,ggthemes,gplots,gridExtra,HGNChelper,patchwork,plot3D,plyr,RColorBrewer,reshape2,scales,tidyverse,viridis,akmedoids,harmony,htmlwidgets,plotly,Seurat,Signac,circlize,ggalluvial,immunarch,vegan,adegenet,ape,fastcluster,GenomicRanges,intervalaverage,umap,Rtsne,robustbase,ComplexHeatmap,celldex,celltalker,DOSE,enrichplot,ensembldb,monocle3,org.Hs.eg.db,SingleR,BSgenome,BSgenome.Hsapiens.UCSC.hg19,BSgenome.Hsapiens.UCSC.hg38,chromVAR,EnsDb.Hsapiens.v75,EnsDb.Hsapiens.v86,GenomeInfoDb,JASPAR2020,motifmatchr,TFBSTools,scRepertoire,GenomicRanges,ggtree,Biobase,ConsensusClusterPlus,flowCore,FlowSOM,flowWorkspace,ggcyto,limma,openCyto,findPC,DoubletFinder,scubi,randomcoloR,clusterProfiler,ggupset,SeuratWrappers
