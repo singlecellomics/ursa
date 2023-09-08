@@ -58,7 +58,7 @@ NULL
 #' event confidence threshold. Default to 100. Refer to:
 #' https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/algorithms/cnv_calling
 #' @param confidence_threshold_quantile CNV event confidence threshold by quantile percentage.
-#'  Default is above 25% quantile of data event confidence.
+#' Default is above 25% quantile of data event confidence.
 #' @param size_threshold_quantile CNV event length threshold by quantile percentage.
 #' Default to 25% quantile of data CNV event length.
 #' @param cnv_cell_threshold Filtering out CNV events that are present in less than N% of all cells.
