@@ -1,0 +1,12 @@
+File_Name;Sample_ID;Batch;Group;Data_Type;Cell_Type;Pair_ID
+pbmc_filtered_feature_bc_matrix.h5;S1;1;G1;scRNA;ALL_CELLS;P1
+pbmc_b_consensus_annotations.csv;S1;1;G1;consensus;BCR;P1
+pbmc_b_filtered_contig_annotations.csv;S1;1;G1;contig;BCR;P1
+pbmc_t_consensus_annotations.csv;S1;1;G1;consensus;TCR;P1
+pbmc_t_filtered_contig_annotations.csv;S1;1;G1;contig;TCR;P1
+tissue_t_count_raw_feature_bc_matrix.h5;S2;2;G2;scRNA;TCR;P2
+tissue_t_vdj_t_consensus_annotations.csv;S2;2;G2;consensus;TCR;P2
+tissue_t_vdj_t_filtered_contig_annotations.csv;S2;2;G2;contig;TCR;P2
+diseased_PBMC__b_count_raw_feature_bc_matrix.h5;S3;3;G2;scRNA;BCR;P3
+diseased_PBMC__b_vdj_b_consensus_annotations.csv;S3;3;G2;consensus;BCR;P3
+diseased_PBMC__b_vdj_b_filtered_contig_annotations.csv;S3;3;G2;contig;BCR;P3

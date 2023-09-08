@@ -8,7 +8,93 @@ CyTOFPip(
   project_name = "Ursa_CyTOF",
   input_dir = "./",
   output_dir = "./",
-  pheno_file
+  pheno_file,
+  flowcore.read.fcs.transformation = FALSE,
+  flowcore.read.fcs.which.lines = NULL,
+  flowcore.read.fcs.alter.names = FALSE,
+  flowcore.read.fcs.column.pattern = NULL,
+  flowcore.read.fcs.invert.pattern = FALSE,
+  flowcore.read.fcs.decades = 0,
+  flowcore.read.fcs.ncdf = FALSE,
+  flowcore.read.fcs.min.limit = NULL,
+  flowcore.read.fcs.truncate_max_range = FALSE,
+  flowcore.read.fcs.dataset = NULL,
+  flowcore.read.fcs.emptyValue = TRUE,
+  flowcore.read.fcs.channel_alias = NULL,
+  cofactor = 5,
+  limma.plotmds.top = 500,
+  limma.plotmds.gene.selection = "pairwise",
+  stats.prcomp.retx = TRUE,
+  stats.prcomp.center = TRUE,
+  stats.prcomp.scale. = FALSE,
+  stats.prcomp.tol = NULL,
+  stats.prcomp.rank. = NULL,
+  samplecluster.hclust.method = "complete",
+  flowsom.readinput.pattern = ".fcs",
+  flowsom.readinput.compensate = FALSE,
+  flowsom.readinput.spillover = NULL,
+  flowsom.readinput.transform = FALSE,
+  flowsom.readinput.toTransform = NULL,
+  flowsom.readinput.transformFunction = NULL,
+  flowsom.readinput.transformList = NULL,
+  flowsom.readinput.scale = FALSE,
+  flowsom.readinput.scaled.center = TRUE,
+  flowsom.readinput.scaled.scale = TRUE,
+  flowsom.readinput.silent = FALSE,
+  flowsom.buildsom.colsToUse = NULL,
+  flowsom.buildsom.silent = FALSE,
+  flowsom.buildsom.outlierMAD = 4,
+  consensusclusterplus.reps = 50,
+  consensusclusterplus.pItem = 0.9,
+  consensusclusterplus.pFeature = 1,
+  consensusclusterplus.clusterAlg = "hc",
+  consensusclusterplus.title = "untitled_consensus_cluster",
+  consensusclusterplus.innerLinkage = "complete",
+  consensusclusterplus.finalLinkage = "complete",
+  consensusclusterplus.distance = "euclidean",
+  consensusclusterplus.ml = NULL,
+  consensusclusterplus.tmyPal = NULL,
+  consensusclusterplus.seed = 1234,
+  consensusclusterplus.weightsItem = NULL,
+  consensusclusterplus.weightsFeature = NULL,
+  consensusclusterplus.corUse = "everything",
+  cellcluster.hclust.method = "complete",
+  stats.prcomp.integrated.retx = TRUE,
+  stats.prcomp.integrated.center = TRUE,
+  stats.prcomp.integrated.scale. = FALSE,
+  stats.prcomp.integrated.tol = NULL,
+  stats.prcomp.integrated.rank. = NULL,
+  umap.method = "naive",
+  umap.preserve.seed = TRUE,
+  umap.somcodes.method = "naive",
+  umap.somcodes.preserve.seed = TRUE,
+  rtsne.somcodes.dims = 2,
+  rtsne.somcodes.initial_dims = 50,
+  rtsne.somcodes.perplexity = 30,
+  rtsne.somcodes.theta = 0.5,
+  rtsne.somcodes.check_duplicates = TRUE,
+  rtsne.somcodes.pca = TRUE,
+  rtsne.somcodes.partial_pca = FALSE,
+  rtsne.somcodes.max_iter = 1000,
+  rtsne.somcodes.is_distance = FALSE,
+  rtsne.somcodes.Y_init = NULL,
+  rtsne.somcodes.pca_center = TRUE,
+  rtsne.somcodes.pca_scale = FALSE,
+  rtsne.somcodes.normalize = TRUE,
+  rtsne.somcodes.momentum = 0.5,
+  rtsne.somcodes.final_momentum = 0.8,
+  rtsne.somcodes.eta = 200,
+  rtsne.somcodes.exaggeration_factor = 12,
+  rtsne.somcodes.num_threads = 1,
+  stats.prcomp.somcodes.retx = TRUE,
+  stats.prcomp.somcodes.center = TRUE,
+  stats.prcomp.somcodes.scale. = FALSE,
+  stats.prcomp.somcodes.tol = NULL,
+  stats.prcomp.somcodes.rank. = NULL,
+  min.cluster.medianexpr.fc = 1.25,
+  min.cluster.num.cells = 3,
+  min.somnode.medianexpr.fc = 1.25,
+  min.somnode.num.cells = 3
 )
 }
 \arguments{
@@ -23,6 +109,17 @@ created under the specified output directory.}
 
 \item{pheno_file}{Meta data file directory. Accept only .csv/.txt format
 files.}
+
+\item{cofactor}{Cofactor for arcsinh (inverse hyperbolic sine) transformation.
+Cofactor = 5 by default.}
+
+\item{...}{Arguments passed to other parameters in the dependency pages.
+Parameters with the long format: xxx.xxx.xxx usually indicates in lowercases
+the parameter origin: <dependent package name>.<function name>.<parameter name>(),
+for example: flowcore.read.fcs.transformation() indicates this parameter 
+originates from the package flowCore under the function read.FCS() and its
+parameter 'transformation'. Users could subsequently refer to the dependency 
+package for detailed information on parameters and their usage.}
 }
 \description{
 This function will run a bioinformatics analysis of post-quantification CyTOF

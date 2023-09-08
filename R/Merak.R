@@ -1,9 +1,9 @@
 ############################################################################################################
 # Ursa: an automated multi-omics package for single-cell analysis
 # Merak: Flow
-# Version: V1.1.0
+# Version: V1.2.0
 # Creator: Lu Pan, Karolinska Institutet, lu.pan@ki.se
-# Date: 2022-02-16
+# Last Update Date: 2023-01-29
 ############################################################################################################
 #' @include ini.R
 #' @include common.R
@@ -59,12 +59,196 @@ NULL
 #' created under the specified output directory.
 #' @param pheno_file Meta data file directory. Accept only .csv/.txt format
 #' files.
+#' @param cofactor Cofactor for arcsinh (inverse hyperbolic sine) transformation.
+#' Cofactor = 150 by default.
+#' @param ... Arguments passed to other parameters in the dependency pages.
+#' Parameters with the long format: xxx.xxx.xxx usually indicates in lowercases
+#' the parameter origin: <dependent package name>.<function name>.<parameter name>(),
+#' for example: flowcore.read.flowset.pattern() indicates this parameter 
+#' originates from the package flowCore under the function read.flowSet() and its
+#' parameter 'pattern'. Users could subsequently refer to the dependency 
+#' package for detailed information on parameters and their usage.
 #' @export
 #'
 FlowPip <- function(project_name = "Ursa_Flow",
                      input_dir = "./",
                      output_dir = "./",
-                     pheno_file){
+                     pheno_file,
+                     cofactor = 150,
+                    
+                    # read.flowSet
+                    flowcore.read.flowset.pattern = ".fcs",
+                    flowcore.read.flowset.phenoData = NULL,
+                    flowcore.read.flowset.descriptions = NULL,
+                    flowcore.read.flowset.name.keyword = NULL,
+                    flowcore.read.flowset.alter.names = TRUE,
+                    flowcore.read.flowset.which.lines = NULL,
+                    flowcore.read.flowset.column.pattern = NULL,
+                    flowcore.read.flowset.invert.pattern = FALSE,
+                    flowcore.read.flowset.decades = 0,
+                    flowcore.read.flowset.sep = "\t",
+                    flowcore.read.flowset.as.is = TRUE,
+                    flowcore.read.flowset.name = NULL,
+                    flowcore.read.flowset.ncdf = FALSE,
+                    flowcore.read.flowset.dataset = NULL,
+                    flowcore.read.flowset.min.limit = NULL,
+                    flowcore.read.flowset.truncate_max_range = TRUE,
+                    flowcore.read.flowset.emptyValue = TRUE, 
+                    flowcore.read.flowset.ignore.text.offset = FALSE,
+                    flowcore.read.flowset.channel_alias = NULL,
+                    
+                    # cyto_transform
+                    cytoexplorer.cyto_transform.trans = NULL,
+                    cytoexplorer.cyto_transform.channels = NULL,
+                    cytoexplorer.cyto_transform.parent = "root",
+                    cytoexplorer.cyto_transform.select = NULL,
+                    cytoexplorer.cyto_transform.inverse = FALSE,
+                    cytoexplorer.cyto_transform.plot = TRUE,
+                    cytoexplorer.cyto_transform.popup = FALSE,
+                    cytoexplorer.cyto_transform.axes_limits = "machine",
+                    
+                    # plotMDS
+                    limma.plotmds.top = 500,
+                    limma.plotmds.gene.selection = "pairwise",
+                    
+                    # prcomp
+                    stats.prcomp.retx = TRUE,
+                    stats.prcomp.center = TRUE,
+                    stats.prcomp.scale. = FALSE,
+                    stats.prcomp.tol = NULL,
+                    stats.prcomp.rank. = NULL,
+                    
+                    # hclust - samplewise clustering
+                    samplecluster.hclust.method = "complete",
+                    
+                    # FlowSOM - ReadInput
+                    flowsom.readinput.pattern = ".fcs",
+                    flowsom.readinput.compensate = FALSE,
+                    flowsom.readinput.spillover = NULL,
+                    flowsom.readinput.transform = FALSE,
+                    flowsom.readinput.toTransform = NULL,
+                    flowsom.readinput.transformFunction = flowCore::arcsinhTransform(),
+                    flowsom.readinput.transformList = NULL,
+                    flowsom.readinput.scale = FALSE,
+                    flowsom.readinput.scaled.center = TRUE,
+                    flowsom.readinput.scaled.scale = TRUE,
+                    flowsom.readinput.silent = FALSE,
+                    
+                    # FlowSOM - BuildSOM
+                    flowsom.buildsom.colsToUse = NULL,
+                    flowsom.buildsom.silent = FALSE,
+                    flowsom.buildsom.outlierMAD = 4,
+                    
+                    # ConsensusClusterPlus
+                    consensusclusterplus.reps = 50,
+                    consensusclusterplus.pItem = 0.9,
+                    consensusclusterplus.pFeature = 1,
+                    consensusclusterplus.clusterAlg = "hc",
+                    consensusclusterplus.title = "untitled_consensus_cluster",
+                    consensusclusterplus.innerLinkage = "complete",
+                    consensusclusterplus.finalLinkage = "complete",
+                    consensusclusterplus.distance = "euclidean",
+                    consensusclusterplus.ml = NULL,
+                    consensusclusterplus.tmyPal = NULL,
+                    consensusclusterplus.seed = 1234,
+                    consensusclusterplus.weightsItem = NULL,
+                    consensusclusterplus.weightsFeature = NULL,
+                    consensusclusterplus.corUse = "everything",
+                    
+                    # hclust - clusterwise clustering
+                    cellcluster.hclust.method = "complete",
+                    
+                    # CreateSeuratObject
+                    seurat.createseuratobject.min.cells = 3,
+                    
+                    # ScaleData
+                    seurat.scaledata.features = NULL,
+                    seurat.scaledata.vars.to.regress = NULL,
+                    # seurat.scaledata.latent.data = NULL,
+                    seurat.scaledata.split.by = NULL,
+                    seurat.scaledata.model.use = "linear",
+                    seurat.scaledata.use.umi = FALSE,
+                    seurat.scaledata.do.scale = TRUE,
+                    seurat.scaledata.do.center = TRUE,
+                    seurat.scaledata.scale.max = 10,
+                    seurat.scaledata.block.size = 1000,
+                    seurat.scaledata.min.cells.to.block = 3000,
+                    
+                    # FindVariableFeatures
+                    seurat.findvariablefeatures.selection.method = "vst",
+                    seurat.findvariablefeatures.loess.span = 0.3,
+                    seurat.findvariablefeatures.clip.max = "auto",
+                    # seurat.findvariablefeatures.mean.function = FastExpMean,
+                    # seurat.findvariablefeatures.dispersion.function = FastLogVMR,
+                    seurat.findvariablefeatures.num.bin = 20,
+                    seurat.findvariablefeatures.binning.method = "equal_width",
+                    seurat.findvariablefeatures.nfeatures = 2000,
+                    seurat.findvariablefeatures.mean.cutoff = c(0.1, 8),
+                    seurat.findvariablefeatures.dispersion.cutoff = c(1, Inf),
+                    
+                    # RunPCA
+                    seurat.runpca.assay = NULL,
+                    seurat.runpca.features = NULL,
+                    seurat.runpca.npcs = 50,
+                    seurat.runpca.rev.pca = FALSE,
+                    seurat.runpca.weight.by.var = TRUE,
+                    seurat.runpca.verbose = TRUE,
+                    seurat.runpca.ndims.print = 1:5,
+                    seurat.runpca.nfeatures.print = 30,
+                    seurat.runpca.reduction.name = "pca",
+                    seurat.runpca.reduction.key = "PC_",
+                    seurat.runpca.seed.use = 42,
+                    
+                    # RunUMAP
+                    seurat.runumap.pcs = 30,
+                    seurat.runumap.features = NULL,
+                    seurat.runumap.graph = NULL,
+                    # seurat.runumap.assay = DefaultAssay(object),
+                    seurat.runumap.nn.name = NULL,
+                    seurat.runumap.slot = "data",
+                    seurat.runumap.umap.method = "uwot",
+                    seurat.runumap.reduction.model = NULL,
+                    seurat.runumap.return.model = FALSE,
+                    seurat.runumap.n.neighbors = 30L,
+                    seurat.runumap.n.components = 2L,
+                    seurat.runumap.metric = "cosine",
+                    seurat.runumap.n.epochs = NULL,
+                    seurat.runumap.learning.rate = 1,
+                    seurat.runumap.min.dist = 0.3,
+                    seurat.runumap.spread = 1,
+                    seurat.runumap.set.op.mix.ratio = 1,
+                    seurat.runumap.local.connectivity = 1L,
+                    seurat.runumap.repulsion.strength = 1,
+                    seurat.runumap.negative.sample.rate = 5L,
+                    seurat.runumap.a = NULL,
+                    seurat.runumap.b = NULL,
+                    seurat.runumap.uwot.sgd = FALSE,
+                    seurat.runumap.seed.use = 42L,
+                    seurat.runumap.metric.kwds = NULL,
+                    seurat.runumap.angular.rp.forest = FALSE,
+                    seurat.runumap.densmap = FALSE,
+                    seurat.runumap.dens.lambda = 2,
+                    seurat.runumap.dens.frac = 0.3,
+                    seurat.runumap.dens.var.shift = 0.1,
+                    seurat.runumap.verbose = TRUE,
+                    seurat.runumap.reduction.name = "umap",
+                    seurat.runumap.reduction.key = "UMAP_",
+                    
+                    # prcomp - SOM codes
+                    stats.prcomp.somcodes.retx = TRUE,
+                    stats.prcomp.somcodes.center = TRUE,
+                    stats.prcomp.somcodes.scale. = FALSE,
+                    stats.prcomp.somcodes.tol = NULL,
+                    stats.prcomp.somcodes.rank. = NULL,
+                    
+                    # Cluster phenotype thresholds
+                    min.cluster.medianexpr.fc = 1.25,
+                    min.cluster.num.cells = 3,
+                    
+                    # SOM nodes phenotype thresholds
+                    min.somnode.medianexpr.fc = 1.25,
+                    min.somnode.num.cells = 3){
+  
   print("Initialising pipeline environment..")
   pheno_data <- pheno_ini(pheno_file, pipeline = "FLOW", isDir = T)
   color_conditions <- color_ini()
@@ -74,13 +258,35 @@ FlowPip <- function(project_name = "Ursa_Flow",
   project_name <- gsub("\\s+|\\(|\\)|-|\\/|\\?","",project_name)
   print(paste("Creating output folder ",project_name,"_",ctime," ..", sep = ""))
   cdir <- paste(output_dir,project_name,"_",ctime,"/", sep = "")
-  dir.create(cdir)
+  dir.create(cdir, recursive = T)
+  
   sample_files <- list.files(input_dir, recursive = T, full.names = T)
   sample_files <- sample_files[grep("_MACOSX",sample_files, ignore.case = T, invert = T)]
   sample_files <- sample_files[grep(gsub(".*\\/(.*)","\\1",pheno_file, ignore.case = T),sample_files, ignore.case = T, invert = T)]
   input_dir <- gsub("(.*\\/).*$","\\1",sample_files[1], ignore.case = T)
 
-  fs_data <- read.flowSet(path = input_dir, pattern = ".fcs", alter.names = TRUE, transformation = FALSE) # linearize + scale to [0,1]
+  fs_data <- read.flowSet(path = input_dir,
+                          transformation = FALSE,
+                          pattern = flowcore.read.flowset.pattern,
+                          phenoData = flowcore.read.flowset.phenoData,
+                          descriptions = flowcore.read.flowset.descriptions,
+                          name.keyword = flowcore.read.flowset.name.keyword,
+                          alter.names = flowcore.read.flowset.alter.names,
+                          which.lines = flowcore.read.flowset.which.lines,
+                          column.pattern = flowcore.read.flowset.column.pattern,
+                          invert.pattern = flowcore.read.flowset.invert.pattern,
+                          decades = flowcore.read.flowset.decades,
+                          sep = flowcore.read.flowset.sep,
+                          as.is = flowcore.read.flowset.as.is,
+                          name = flowcore.read.flowset.name,
+                          ncdf = flowcore.read.flowset.ncdf,
+                          dataset = flowcore.read.flowset.dataset,
+                          min.limit = flowcore.read.flowset.min.limit,
+                          truncate_max_range = flowcore.read.flowset.truncate_max_range,
+                          emptyValue = flowcore.read.flowset.emptyValue, 
+                          ignore.text.offset = flowcore.read.flowset.ignore.text.offset,
+                          channel_alias = flowcore.read.flowset.channel_alias) # linearize + scale to [0,1]
+  
   sampleNames(fs_data) <- pheno_data[match(sampleNames(fs_data), pheno_data$FILE),grep("SAMPLE.*ID", colnames(pheno_data), ignore.case = T)]
   phenoData(fs_data)$name <- pheno_data[match(phenoData(fs_data)$name, pheno_data$FILE),grep("SAMPLE.*ID", colnames(pheno_data), ignore.case = T)]
   phenoData(fs_data)$GROUP <- pheno_data[match(sampleNames(fs_data), pheno_data$SAMPLE_ID),"GROUP"]
@@ -97,7 +303,7 @@ FlowPip <- function(project_name = "Ursa_Flow",
   colnames(data) <- gsub("(.*)_$","\\1",colnames(data))
   data <- melt(data)
   colnames(data) <- c("SAMPLE_ID","CHANNEL","ASINH_COUNT")
-  cofactor <- 150
+  # cofactor <- 150
   data$ASINH_COUNT <- asinh(data$ASINH_COUNT/cofactor)
   pheno_data <- pheno_data[order(pheno_data$GROUP, decreasing = F),]
   data$GROUP <- pheno_data[match(data$SAMPLE_ID,pheno_data$SAMPLE_ID),"GROUP"]
@@ -139,7 +345,16 @@ FlowPip <- function(project_name = "Ursa_Flow",
     cname <- sampleNames(fs_data)[i]
     print(paste("Running gating for ", cname, "..", sep = ""))
     gs[[i]] <- GatingSet(fs_data[i])
-    gs[[i]] <- cyto_transform(gs[[i]], type = "arcsinh")
+    gs[[i]] <- cyto_transform(gs[[i]],
+                              type = "arcsinh",
+                              trans = cytoexplorer.cyto_transform.trans,
+                              channels = cytoexplorer.cyto_transform.channels,
+                              parent = cytoexplorer.cyto_transform.parent,
+                              select = cytoexplorer.cyto_transform.select,
+                              inverse = cytoexplorer.cyto_transform.inverse,
+                              plot = cytoexplorer.cyto_transform.plot,
+                              popup = cytoexplorer.cyto_transform.popup,
+                              axes_limits = cytoexplorer.cyto_transform.axes_limits)
     if(length(colnames(fs_data[[i]])[grep("FSC.*A|SSC.*A", colnames(fs_data[[i]]), ignore.case = T)]) == 2){
       chnl <- colnames(fs_data[[i]])[grep("FSC.*A", colnames(fs_data[[i]]), ignore.case = T)]
       chnlx <- colnames(fs_data[[i]])[grep("FSC.*A", colnames(fs_data), ignore.case = T)]
@@ -293,7 +508,7 @@ FlowPip <- function(project_name = "Ursa_Flow",
   dev.off()
 
   data_summary$name <- factor(data_summary$name, levels = sort(unique(data_summary$name)))
-  write.csv(data_summary, paste(cdir, "URSA_TABLE_FLOW_FILTERING_SUMMARY_",project_name,".csv",sep = ""),row.names = F)
+  write.csv(data_summary, paste(cdir, "4URSA_TABLE_FLOW_FILTERING_SUMMARY_",project_name,".csv",sep = ""),row.names = F)
 
   gating_colors <- gen_colors(color_conditions$manycolors, length(unique(data_summary$Population)))
   names(gating_colors) <- unique(data_summary$Population)
@@ -391,8 +606,15 @@ FlowPip <- function(project_name = "Ursa_Flow",
   row.names(plot_median) <- colnames(data[,grep("SAMPLE.*ID", colnames(data), ignore.case = T, invert = T)])
   colnames(plot_median) <- files
 
-  mds <- plotMDS(plot_median, plot = FALSE)
-  pca_out <- prcomp(t(plot_median), center = TRUE, scale. = FALSE)
+  mds <- plotMDS(plot_median, plot = FALSE,
+                 top = limma.plotmds.top,
+                 gene.selection = limma.plotmds.gene.selection)
+  pca_out <- prcomp(t(plot_median),
+                    retx = stats.prcomp.retx,
+                    center = stats.prcomp.center,
+                    scale. = stats.prcomp.scale.,
+                    tol = stats.prcomp.tol,
+                    rank. = stats.prcomp.rank.)
   ggdf <- data.frame(SAMPLE_ID = colnames(plot_median), MDS1 = mds$x, MDS2 = mds$y, PC1 = pca_out$x[,1], PC2 = pca_out$x[,2])
   ggdf$GROUP <- pheno_data[match(ggdf$SAMPLE_ID,pheno_data$SAMPLE_ID),"GROUP"]
   ggdf$CELL_COUNT <- pheno_data[match(ggdf$SAMPLE_ID, pheno_data$SAMPLE_ID),"Filtered_Cell_Count"]
@@ -438,7 +660,7 @@ FlowPip <- function(project_name = "Ursa_Flow",
 
   p8data <- plot_median
   colnames(p8data) <- paste(colnames(p8data), pheno_data[match(colnames(p8data), pheno_data$SAMPLE_ID),"GROUP"])
-  p8data <- as.dendrogram(hclust(as.dist(1-cor((p8data)))))
+  p8data <- as.dendrogram(hclust(as.dist(1-cor((p8data))), method = samplecluster.hclust.method))
 
   somePDFPath <- paste(cdir,"8URSA_PLOT_FLOW_DENDROGRAM_SAMPLES_",project_name,".pdf", sep = "")
   pdf(file=somePDFPath, width=10, height=6.7,pointsize=12)
@@ -446,8 +668,17 @@ FlowPip <- function(project_name = "Ursa_Flow",
   print(plot(p8data, horiz = TRUE))
   dev.off()
 
-  NRS <- function(x, ncomp = 3){
-    pr <- prcomp(x, center = TRUE, scale. = FALSE)
+  NRS <- function(x, ncomp = 3, stats.prcomp.retx = T,
+                  stats.prcomp.center = T,
+                  stats.prcomp.scale. = F,
+                  stats.prcomp.tol = NULL,
+                  stats.prcomp.rank. = NULL){
+    pr <- prcomp(x,
+                 retx = stats.prcomp.retx,
+                 center = stats.prcomp.center,
+                 scale. = stats.prcomp.scale.,
+                 tol = stats.prcomp.tol,
+                 rank. = stats.prcomp.rank.)
     score <- rowSums(outer(rep(1, ncol(x)),pr$sdev[1:ncomp]^2) * abs(pr$rotation[,1:ncomp]))
     return(score)
   }
@@ -503,17 +734,44 @@ FlowPip <- function(project_name = "Ursa_Flow",
   print("Running dimension reduction and clustering..")
   fs_data = as(data0,"flowSet")
   flowCore::pData(fs_data)$name <- samples
-  som_input <- ReadInput(fs_data)
+  som_input <- ReadInput(fs_data,
+                         pattern = flowsom.readinput.pattern,
+                         compensate = flowsom.readinput.compensate,
+                         spillover = flowsom.readinput.spillover,
+                         transform = flowsom.readinput.transform,
+                         toTransform = flowsom.readinput.toTransform,
+                         transformFunction = flowsom.readinput.transformFunction,
+                         transformList = flowsom.readinput.transformList,
+                         scale = flowsom.readinput.scale,
+                         scaled.center = flowsom.readinput.scaled.center,
+                         scaled.scale = flowsom.readinput.scaled.scale,
+                         silent = flowsom.readinput.silent)
   set.seed(59)
-  som <- BuildSOM(som_input)
+  som <- BuildSOM(som_input,
+                  colsToUse = flowsom.buildsom.colsToUse,
+                  silent = flowsom.buildsom.silent,
+                  outlierMAD = flowsom.buildsom.outlierMAD)
   codes <- som$map$codes
-  nmc <- 90
+  nmc <- 50
   print("Running ConsensusClusterPlus..")
   somePDFPath <- paste(cdir,"10URSA_PLOT_FLOW_CONSENSUS_",project_name,".pdf", sep = "")
   pdf(file=somePDFPath, width=12, height=12,pointsize=12)
-  mc <- ConsensusClusterPlus(t(codes), maxK = nmc, reps = 50,
-                             pItem = 0.9, pFeature = 1, plot = NULL,
-                             clusterAlg = "hc", innerLinkage = "complete", finalLinkage = "complete", distance = "euclidean", seed = 1234)
+  mc <- ConsensusClusterPlus(t(codes), maxK = nmc,
+                             plot = NULL,
+                             reps = consensusclusterplus.reps,
+                             pItem = consensusclusterplus.pItem,
+                             pFeature = consensusclusterplus.pFeature,
+                             clusterAlg = consensusclusterplus.clusterAlg,
+                             title = consensusclusterplus.title,
+                             innerLinkage = consensusclusterplus.innerLinkage,
+                             finalLinkage = consensusclusterplus.finalLinkage,
+                             distance = consensusclusterplus.distance,
+                             ml = consensusclusterplus.ml,
+                             tmyPal = consensusclusterplus.tmyPal,
+                             seed = consensusclusterplus.seed,
+                             weightsItem = consensusclusterplus.weightsItem,
+                             weightsFeature = consensusclusterplus.weightsFeature,
+                             corUse = consensusclusterplus.corUse)
 dev.off()
   Kvec = 2:nmc
   x1 = 0.1; x2 = 0.9
@@ -585,22 +843,94 @@ dev.off()
   row.names(plot_median) <- paste("Cluster_", pop_list, ":",cell_number,sep = "")
   colnames(plot_median) <- toupper(gsub("^.*?_","",colnames(data)[grep("SAMPLE.*ID|population",colnames(data), ignore.case = T, invert = T)]))
   plot_median <- data.frame(plot_median)
-  dista <- hclust(as.dist(1-cor(t(plot_median))), method = "complete")
+  dista <- hclust(as.dist(1-cor(t(plot_median))), method = cellcluster.hclust.method)
   plot_median <- scale(plot_median)
   plot_median <- t(scale(t(plot_median)))
   plot_median <- as.matrix(plot_median)
 
   data_meta <- data[,grep("SAMPLE.*ID|population", colnames(data), ignore.case = T)]
   x <- data.frame(t(data[,grep("SAMPLE.*ID|population", colnames(data), ignore.case = T, invert = T)]))
-  x <- CreateSeuratObject(counts = x)
+  x <- CreateSeuratObject(counts = x, min.cells = seurat.createseuratobject.min.cells)
   x$PROJECT <- project_name
   x@meta.data <- cbind(x@meta.data,data_meta)
   x$orig.ident <- x$SAMPLE_ID
   x@assays$RNA@data <- x@assays$RNA@counts
-  x <- ScaleData(x)
-  x <- FindVariableFeatures(x)
-  x <- RunPCA(x, features = VariableFeatures(x))
-  x <- RunUMAP(x, reduction = "pca", dims = 1:ifelse(length(x@reductions$pca) < 30, length(x@reductions$pca), 30))
+  x <- ScaleData(x,
+                 features = seurat.scaledata.features,
+                 vars.to.regress = seurat.scaledata.vars.to.regress,
+                 # latent.data = seurat.scaledata.latent.data,
+                 split.by = seurat.scaledata.split.by,
+                 model.use = seurat.scaledata.model.use,
+                 use.umi = seurat.scaledata.use.umi,
+                 do.scale = seurat.scaledata.do.scale,
+                 do.center = seurat.scaledata.do.center,
+                 scale.max = seurat.scaledata.scale.max,
+                 block.size = seurat.scaledata.block.size,
+                 min.cells.to.block = seurat.scaledata.min.cells.to.block)
+  x <- FindVariableFeatures(x,
+                            selection.method = seurat.findvariablefeatures.selection.method,
+                            loess.span = seurat.findvariablefeatures.loess.span,
+                            clip.max = seurat.findvariablefeatures.clip.max,
+                            # mean.function = seurat.findvariablefeatures.mean.function,
+                            # dispersion.function = seurat.findvariablefeatures.dispersion.function,
+                            num.bin = seurat.findvariablefeatures.num.bin,
+                            binning.method = seurat.findvariablefeatures.binning.method,
+                            nfeatures = seurat.findvariablefeatures.nfeatures,
+                            mean.cutoff = seurat.findvariablefeatures.mean.cutoff,
+                            dispersion.cutoff = seurat.findvariablefeatures.dispersion.cutoff)
+  x <- RunPCA(x,
+              assay = seurat.runpca.assay,
+              features = seurat.runpca.features,
+              npcs = seurat.runpca.npcs,
+              rev.pca = seurat.runpca.rev.pca,
+              weight.by.var = seurat.runpca.weight.by.var,
+              verbose = seurat.runpca.verbose,
+              ndims.print = seurat.runpca.ndims.print,
+              nfeatures.print = seurat.runpca.nfeatures.print,
+              reduction.name = seurat.runpca.reduction.name,
+              reduction.key = seurat.runpca.reduction.key,
+              seed.use = seurat.runpca.seed.use)
+  
+  selected_pcs <- NULL
+  selected_pcs <- find_selected_pcs(x,
+                                    pcs = seurat.runumap.pcs,
+                                    pca = "pca",
+                                    cname = "all samples")
+  x <- RunUMAP(x,
+               reduction = "pca",
+               dims = 1:selected_pcs,
+               features = seurat.runumap.features,
+               graph = seurat.runumap.graph,
+               assay = seurat.runumap.assay,
+  nn.name = seurat.runumap.nn.name,
+  slot = seurat.runumap.slot,
+  umap.method = seurat.runumap.umap.method,
+  reduction.model = seurat.runumap.reduction.model,
+  return.model = seurat.runumap.return.model,
+  n.neighbors = seurat.runumap.n.neighbors,
+  n.components = seurat.runumap.n.components,
+  metric = seurat.runumap.metric,
+  n.epochs = seurat.runumap.n.epochs,
+  learning.rate = seurat.runumap.learning.rate,
+  min.dist = seurat.runumap.min.dist,
+  spread = seurat.runumap.spread,
+  set.op.mix.ratio = seurat.runumap.set.op.mix.ratio,
+  local.connectivity = seurat.runumap.local.connectivity,
+  repulsion.strength = seurat.runumap.repulsion.strength,
+  negative.sample.rate = seurat.runumap.negative.sample.rate,
+  a = seurat.runumap.a,
+  b = seurat.runumap.b,
+  uwot.sgd = seurat.runumap.uwot.sgd,
+  seed.use = seurat.runumap.seed.use,
+  metric.kwds = seurat.runumap.metric.kwds,
+  angular.rp.forest = seurat.runumap.angular.rp.forest,
+  densmap = seurat.runumap.densmap,
+  dens.lambda = seurat.runumap.dens.lambda,
+  dens.frac = seurat.runumap.dens.frac,
+  dens.var.shift = seurat.runumap.dens.var.shift,
+  verbose = seurat.runumap.verbose,
+  reduction.name = seurat.runumap.reduction.name,
+  reduction.key = seurat.runumap.reduction.key)
 
   plotx <- data.frame(UMAP_1 = x@reductions$umap@cell.embeddings[,"UMAP_1"],
                       UMAP_2 = x@reductions$umap@cell.embeddings[,"UMAP_2"],

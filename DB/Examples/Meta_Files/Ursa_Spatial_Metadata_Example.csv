@@ -1,0 +1,5 @@
+File;Sample_ID;Group
+S1_filtered_feature_bc_matrix.h5;S1;Normal
+S2_filtered_feature_bc_matrix.h5;S2;Cancer
+S3_filtered_feature_bc_matrix.h5;S3;Normal
+S4_filtered_feature_bc_matrix.h5;S4;Cancer

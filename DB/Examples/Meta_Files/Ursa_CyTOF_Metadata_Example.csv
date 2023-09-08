@@ -1,0 +1,5 @@
+﻿File;Sample_id;Individual_id;Batch;Group
+PBMC1.fcs;S1;P1;1;Pre-treatment
+PBMC2.fcs;S2;P1;1;Post-treatment
+PBMC3.fcs;S3;P2;2;Pre-treatment
+PBMC4.fcs;S4;P2;2;Post-treatment

@@ -1,3 +1,11 @@
+############################################################################################################
+# Ursa: an automated multi-omics package for single-cell analysis
+# ini: functions for Ursa initialization process
+# Version: V1.2.0
+# Creator: Lu Pan, Karolinska Institutet, lu.pan@ki.se
+# Last Update Date: 2023-01-29
+############################################################################################################
+
 #' @keywords internal
 
 time_ini <- function(){

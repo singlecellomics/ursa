@@ -9,9 +9,47 @@ scCNVPip(
   input_dir = "./",
   output_dir = "./",
   pheno_file,
-  confidence_threshold = 50,
-  size_threshold = 2e+06,
-  cnv_cell_threshold = 5
+  diploid.min.event_confidence = 100,
+  nondiploid.min.event_confidence = 100,
+  confidence_threshold_quantile = 25,
+  size_threshold_quantile = 25,
+  cnv_cell_threshold = 5,
+  region_type.hclust.method = "complete",
+  min.cnv_event_size = NULL,
+  min.cnv_event_confidence = NULL,
+  min.mappable.size = NULL,
+  adegenet.find.clusters.clust = NULL,
+  adegenet.find.clusters.n.pca = 200,
+  adegenet.find.clusters.n.clust = NULL,
+  adegenet.find.clusters.method = "kmeans",
+  adegenet.find.clusters.stat = "BIC",
+  adegenet.find.clusters.choose.n.clust = FALSE,
+  adegenet.find.clusters.criterion = "goodfit",
+  adegenet.find.clusters.max.n.clust = 10,
+  adegenet.find.clusters.n.iter = 1e+05,
+  adegenet.find.clusters.n.start = 10,
+  adegenet.find.clusters.center = TRUE,
+  adegenet.find.clusters.scale = TRUE,
+  adegenet.find.clusters.pca.select = "nbEig",
+  adegenet.find.clusters.perc.pca = NULL,
+  adegenet.find.clusters.dudi = NULL,
+  adegenet.dapc.n.pca = 200,
+  adegenet.dapc.n.da = 10,
+  adegenet.dapc.center = TRUE,
+  adegenet.dapc.scale = FALSE,
+  adegenet.dapc.var.contrib = TRUE,
+  adegenet.dapc.var.loadings = FALSE,
+  adegenet.dapc.pca.info = TRUE,
+  adegenet.dapc.pca.select = "nbEig",
+  adegenet.dapc.perc.pca = NULL,
+  adegenet.dapc.dudi = NULL,
+  umap.method = "naive",
+  umap.preserve.seed = TRUE,
+  cell_binary_cnv.hclust.method = "complete",
+  ploidy.hclust.method = "complete",
+  ape.fastme.bal.nni = TRUE,
+  ape.fastme.bal.spr = TRUE,
+  ape.fastme.bal.tbr = FALSE
 )
 }
 \arguments{
@@ -25,12 +63,34 @@ created under the specified output directory.}
 
 \item{pheno_file}{Meta data file directory. Accept only .csv/.txt format files.}
 
-\item{confidence_threshold}{CNV event confidence threshold. Default is 50.}
+\item{diploid.min.event_confidence}{Filter diploid cells with a minimum copy number
+event confidence threshold. Default to 100. Refer to:
+https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/algorithms/cnv_calling}
 
-\item{size_threshold}{CNV event length. Default to 2Mbp in size.}
+\item{nondiploid.min.event_confidence}{Filter non-diploid cells with a minimum copy number
+event confidence threshold. Default to 100. Refer to:
+https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/algorithms/cnv_calling}
+
+\item{confidence_threshold_quantile}{CNV event confidence threshold by quantile percentage.
+Default is above 25% quantile of data event confidence.}
+
+\item{size_threshold_quantile}{CNV event length threshold by quantile percentage.
+Default to 25% quantile of data CNV event length.}
 
 \item{cnv_cell_threshold}{Filtering out CNV events that are present in less than N% of all cells.
 Values range from 0 to 100. Default to 5.}
+
+\item{min.cnv_event_size}{Filtering out CNV events with an interval of less than the indicated threshold.
+Default to the CNV event length threshold (i.e., size_threshold_quantile) percent quantile of
+the CNV event lengths.}
+
+\item{min.cnv_event_confidence}{Filtering out CNV events with event confidence less than the indicated threshold.
+Default to the CNV event confidence threshold (i.e., confidence_threshold_quantile) percent quantile of
+the CNV event confidences.}
+
+\item{min.mappable.size}{Filtering out CNV events with an mappable region interval of less than the indicated threshold.
+Default to the CNV event length threshold (i.e., size_threshold_quantile) percent quantile of
+the mappable region intervals.}
 }
 \description{
 This function will run a bioinformatics analysis of post-quantification scCNV

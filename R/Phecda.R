@@ -1,9 +1,9 @@
 ############################################################################################################
 # Ursa R Package
 # Phecda: CyTOF
-# Version: V1.1.0
+# Version: V1.2.0
 # Creator: Lu Pan, Karolinska Institutet, lu.pan@ki.se
-# Date: 2022-02-16
+# Last Update Date: 2023-01-29
 ############################################################################################################
 #' @include ini.R
 #' @include common.R
@@ -57,12 +57,144 @@ NULL
 #' created under the specified output directory.
 #' @param pheno_file Meta data file directory. Accept only .csv/.txt format
 #' files.
+#' @param cofactor Cofactor for arcsinh (inverse hyperbolic sine) transformation.
+#' Cofactor = 5 by default.
+#' @param ... Arguments passed to other parameters in the dependency pages.
+#' Parameters with the long format: xxx.xxx.xxx usually indicates in lowercases
+#' the parameter origin: <dependent package name>.<function name>.<parameter name>(),
+#' for example: flowcore.read.fcs.transformation() indicates this parameter 
+#' originates from the package flowCore under the function read.FCS() and its
+#' parameter 'transformation'. Users could subsequently refer to the dependency 
+#' package for detailed information on parameters and their usage.
 #' @export
 #'
 CyTOFPip <- function(project_name = "Ursa_CyTOF",
                     input_dir = "./",
                     output_dir = "./",
-                    pheno_file){
+                    pheno_file,
+                    
+                    # read.FCS
+                    flowcore.read.fcs.transformation = FALSE,
+                    flowcore.read.fcs.which.lines = NULL,
+                    flowcore.read.fcs.alter.names = FALSE,
+                    flowcore.read.fcs.column.pattern = NULL,
+                    flowcore.read.fcs.invert.pattern = FALSE,
+                    flowcore.read.fcs.decades = 0,
+                    flowcore.read.fcs.ncdf = FALSE,
+                    flowcore.read.fcs.min.limit = NULL, 
+                    flowcore.read.fcs.truncate_max_range = FALSE,
+                    flowcore.read.fcs.dataset = NULL,
+                    flowcore.read.fcs.emptyValue = TRUE, 
+                    flowcore.read.fcs.channel_alias = NULL,
+                    
+                    # cofactor
+                    cofactor = 5,
+                    
+                    # plotMDS
+                    limma.plotmds.top = 500,
+                    limma.plotmds.gene.selection = "pairwise",
+                    
+                    # prcomp
+                    stats.prcomp.retx = TRUE,
+                    stats.prcomp.center = TRUE,
+                    stats.prcomp.scale. = FALSE,
+                    stats.prcomp.tol = NULL,
+                    stats.prcomp.rank. = NULL,
+                    
+                    # hclust - samplewise clustering
+                    samplecluster.hclust.method = "complete",
+                    
+                    # FlowSOM - ReadInput
+                    flowsom.readinput.pattern = ".fcs",
+                    flowsom.readinput.compensate = FALSE,
+                    flowsom.readinput.spillover = NULL,
+                    flowsom.readinput.transform = FALSE,
+                    flowsom.readinput.toTransform = NULL,
+                    flowsom.readinput.transformFunction = NULL,
+                    flowsom.readinput.transformList = NULL,
+                    flowsom.readinput.scale = FALSE,
+                    flowsom.readinput.scaled.center = TRUE,
+                    flowsom.readinput.scaled.scale = TRUE,
+                    flowsom.readinput.silent = FALSE,
+                    
+                    # FlowSOM - BuildSOM
+                    flowsom.buildsom.colsToUse = NULL,
+                    flowsom.buildsom.silent = FALSE,
+                    flowsom.buildsom.outlierMAD = 4,
+                    
+                    # ConsensusClusterPlus
+                    consensusclusterplus.reps = 50,
+                    consensusclusterplus.pItem = 0.9,
+                    consensusclusterplus.pFeature = 1,
+                    consensusclusterplus.clusterAlg = "hc",
+                    consensusclusterplus.title = "untitled_consensus_cluster",
+                    consensusclusterplus.innerLinkage = "complete",
+                    consensusclusterplus.finalLinkage = "complete",
+                    consensusclusterplus.distance = "euclidean",
+                    consensusclusterplus.ml = NULL,
+                    consensusclusterplus.tmyPal = NULL,
+                    consensusclusterplus.seed = 1234,
+                    consensusclusterplus.weightsItem = NULL,
+                    consensusclusterplus.weightsFeature = NULL,
+                    consensusclusterplus.corUse = "everything",
+                    
+                    # hclust - clusterwise clustering
+                    cellcluster.hclust.method = "complete",
+                    
+                    # Integrated - prcomp
+                    stats.prcomp.integrated.retx = TRUE,
+                    stats.prcomp.integrated.center = TRUE,
+                    stats.prcomp.integrated.scale. = FALSE,
+                    stats.prcomp.integrated.tol = NULL,
+                    stats.prcomp.integrated.rank. = NULL,
+                    
+                    # umap
+                    # umap.config = umap.defaults,
+                    umap.method = "naive",
+                    umap.preserve.seed = TRUE,
+                    
+                    # umap - SOM codes
+                    # umap.somcodes.config = umap.defaults,
+                    umap.somcodes.method = "naive",
+                    umap.somcodes.preserve.seed = TRUE,
+                    
+                    # Rtsne
+                    rtsne.somcodes.dims = 2,
+                    rtsne.somcodes.initial_dims = 50,
+                    rtsne.somcodes.perplexity = 30,
+                    rtsne.somcodes.theta = 0.5,
+                    rtsne.somcodes.check_duplicates = TRUE,
+                    rtsne.somcodes.pca = TRUE,
+                    rtsne.somcodes.partial_pca = FALSE,
+                    rtsne.somcodes.max_iter = 1000,
+                    rtsne.somcodes.is_distance = FALSE,
+                    rtsne.somcodes.Y_init = NULL,
+                    rtsne.somcodes.pca_center = TRUE,
+                    rtsne.somcodes.pca_scale = FALSE,
+                    rtsne.somcodes.normalize = TRUE,
+                    # rtsne.somcodes.stop_lying_iter = ifelse(is.null(Y_init), 250L, 0L),
+                    # rtsne.somcodes.mom_switch_iter = ifelse(is.null(Y_init), 250L, 0L),
+                    rtsne.somcodes.momentum = 0.5,
+                    rtsne.somcodes.final_momentum = 0.8,
+                    rtsne.somcodes.eta = 200,
+                    rtsne.somcodes.exaggeration_factor = 12,
+                    rtsne.somcodes.num_threads = 1,
+                    
+                    # prcomp - SOM codes
+                    stats.prcomp.somcodes.retx = TRUE,
+                    stats.prcomp.somcodes.center = TRUE,
+                    stats.prcomp.somcodes.scale. = FALSE,
+                    stats.prcomp.somcodes.tol = NULL,
+                    stats.prcomp.somcodes.rank. = NULL,
+                    
+                    # Cluster phenotype thresholds
+                    min.cluster.medianexpr.fc = 1.25,
+                    min.cluster.num.cells = 3,
+                    
+                    # SOM nodes phenotype thresholds
+                    min.somnode.medianexpr.fc = 1.25,
+                    min.somnode.num.cells = 3){
+  
   print("Initialising pipeline environment..")
   pheno_data <- pheno_ini(pheno_file, pipeline = "CYTOF", isDir = T)
   color_conditions <- color_ini()
@@ -70,7 +202,8 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
   project_name <- gsub("\\s+|\\(|\\)|-|\\/|\\?","",project_name)
   print(paste("Creating output folder ",project_name,"_",ctime," ..", sep = ""))
   cdir <- paste(output_dir,project_name,"_",ctime,"/", sep = "")
-  dir.create(cdir)
+  dir.create(cdir, recursive = T)
+  
   sample_files <- list.files(input_dir, recursive = T, full.names = T)
   sample_files <- sample_files[grep("_MACOSX",sample_files, ignore.case = T, invert = T)]
   sample_files <- sample_files[grep(gsub(".*\\/(.*)","\\1",pheno_file, ignore.case = T),sample_files, ignore.case = T, invert = T)]
@@ -86,7 +219,20 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
   for(i in 1:nrow(pheno_data)){
     if (length(grep(pheno_data[i,grep("FILE", colnames(pheno_data),ignore.case = T)], files_submit, ignore.case = T)) > 0){
       current_name <- pheno_data[i,"SID"]
-      current <- read.FCS(files_submit[grep(pheno_data[i,grep("FILE", colnames(pheno_data),ignore.case = T)], files_submit, ignore.case = T)], transformation = FALSE, truncate_max_range = FALSE)
+      current <- read.FCS(files_submit[grep(pheno_data[i,grep("FILE", colnames(pheno_data),ignore.case = T)],
+                                            files_submit, ignore.case = T)],
+                          transformation = FALSE,
+                          which.lines = flowcore.read.fcs.which.lines,
+                          alter.names = flowcore.read.fcs.alter.names,
+                          column.pattern = flowcore.read.fcs.column.pattern,
+                          invert.pattern = flowcore.read.fcs.invert.pattern,
+                          decades = flowcore.read.fcs.decades,
+                          ncdf = flowcore.read.fcs.ncdf,
+                          min.limit = flowcore.read.fcs.min.limit, 
+                          truncate_max_range = flowcore.read.fcs.truncate_max_range,
+                          dataset = flowcore.read.fcs.dataset,
+                          emptyValue = flowcore.read.fcs.emptyValue, 
+                          channel_alias = flowcore.read.fcs.channel_alias)
       col_current <- as.character(parameters(current)$desc)
       if(length(which(is.na(col_current))) > 0){
         col_current[which(is.na(col_current))] <- as.character(parameters(current)$name)[which(is.na(col_current))]
@@ -110,7 +256,6 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
 
   EXPR_PARA <- data_submit[,grep("FILE|time|cell_length|dna|Event_length|Center|Offset|Width|Residual", colnames(data_submit), ignore.case = T)]
 
-  cofactor <- 5
   data <- asinh(data_submit[,grep("FILE|time|cell_length|dna|Event_length|Center|Offset|Width|Residual", colnames(data_submit), ignore.case = T, invert = T)] / cofactor)
   if(length(unique(pheno_data$BATCH)) > 1){
   data <- apply(data, 2, function(x){x <- lm(x ~ pheno_data[match(data_submit$FILE,pheno_data$SID),"BATCH"])$residual})
@@ -209,8 +354,16 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
   row.names(plot_median) <- marker_list
   colnames(plot_median) <- toupper(gsub("\\.fcs","",files,ignore.case = T))
 
-  mds <- plotMDS(plot_median, plot = FALSE)
-  pca_out <- prcomp(t(plot_median), center = TRUE, scale. = FALSE)
+  mds <- plotMDS(plot_median,
+                 plot = FALSE,
+                 top = limma.plotmds.top,
+                 gene.selection = limma.plotmds.gene.selection)
+  pca_out <- prcomp(t(plot_median),
+                    retx = stats.prcomp.retx,
+                    center = stats.prcomp.center,
+                    scale. = stats.prcomp.scale.,
+                    tol = stats.prcomp.tol,
+                    rank. = stats.prcomp.rank.)
   ggdf <- data.frame(SID = colnames(plot_median), MDS1 = mds$x, MDS2 = mds$y, PC1 = pca_out$x[,1], PC2 = pca_out$x[,2])
   ggdf <- plyr::join(ggdf, pheno_data, by = "SID")
 
@@ -271,16 +424,25 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
   print(p6plots)
   dev.off()
 
-  p7data <- as.dendrogram(hclust(as.dist(1-cor((current)))))
+  p7data <- as.dendrogram(hclust(as.dist(1-cor((current))), method = samplecluster.hclust.method))
 
   somePNGPath <- paste(cdir,"7URSA_PLOT_CyTOF_DENDROGRAM_SAMPLES_",project_name,".png", sep = "")
   png(somePNGPath, width=3000, height=2000, units = "px", res = 300)
   par(mar=c(3,4,1,6))
   print(plot(p7data, horiz = TRUE))
   dev.off()
-
-  NRS <- function(x, ncomp = 3){
-    pr <- prcomp(x, center = TRUE, scale. = FALSE)
+  
+  NRS <- function(x, ncomp = 3, stats.prcomp.retx = T,
+                  stats.prcomp.center = T,
+                  stats.prcomp.scale. = F,
+                  stats.prcomp.tol = NULL,
+                  stats.prcomp.rank. = NULL){
+    pr <- prcomp(x,
+                 retx = stats.prcomp.retx,
+                 center = stats.prcomp.center,
+                 scale. = stats.prcomp.scale.,
+                 tol = stats.prcomp.tol,
+                 rank. = stats.prcomp.rank.)
     score <- rowSums(outer(rep(1, ncol(x)),pr$sdev[1:ncomp]^2) * abs(pr$rotation[,1:ncomp]))
     return(score)
   }
@@ -336,16 +498,43 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
 
   data_fs = as(data0,"flowSet")
   flowCore::pData(data_fs)$name <- files
-  som_input <- ReadInput(data_fs)
+  som_input <- ReadInput(data_fs,
+                         pattern = flowsom.readinput.pattern,
+                         compensate = flowsom.readinput.compensate,
+                         spillover = flowsom.readinput.spillover,
+                         transform = flowsom.readinput.transform,
+                         toTransform = flowsom.readinput.toTransform,
+                         transformFunction = flowsom.readinput.transformFunction,
+                         transformList = flowsom.readinput.transformList,
+                         scale = flowsom.readinput.scale,
+                         scaled.center = flowsom.readinput.scaled.center,
+                         scaled.scale = flowsom.readinput.scaled.scale,
+                         silent = flowsom.readinput.silent)
   set.seed(59)
-  som <- BuildSOM(som_input)
+  som <- BuildSOM(som_input,
+                  colsToUse = flowsom.buildsom.colsToUse,
+                  silent = flowsom.buildsom.silent,
+                  outlierMAD = flowsom.buildsom.outlierMAD)
   codes <- som$map$codes
-  nmc <- 90
+  nmc <- 50
   somePDFPath <- paste(cdir,"9URSA_PLOT_CyTOF_CONSENSUS_",project_name,".pdf", sep = "")
   pdf(file=somePDFPath, width=12, height=12,pointsize=12)
-  mc <- ConsensusClusterPlus(t(codes), maxK = nmc, reps = 50,
-                             pItem = 0.9, pFeature = 1, plot = NULL,
-                             clusterAlg = "hc", innerLinkage = "complete", finalLinkage = "complete", distance = "euclidean", seed = 1234)
+  mc <- ConsensusClusterPlus(t(codes), maxK = nmc,
+                             plot = NULL,
+                             reps = consensusclusterplus.reps,
+                             pItem = consensusclusterplus.pItem,
+                             pFeature = consensusclusterplus.pFeature,
+                             clusterAlg = consensusclusterplus.clusterAlg,
+                             title = consensusclusterplus.title,
+                             innerLinkage = consensusclusterplus.innerLinkage,
+                             finalLinkage = consensusclusterplus.finalLinkage,
+                             distance = consensusclusterplus.distance,
+                             ml = consensusclusterplus.ml,
+                             tmyPal = consensusclusterplus.tmyPal,
+                             seed = consensusclusterplus.seed,
+                             weightsItem = consensusclusterplus.weightsItem,
+                             weightsFeature = consensusclusterplus.weightsFeature,
+                             corUse = consensusclusterplus.corUse)
   dev.off()
   Kvec = 2:nmc
   x1 = 0.1; x2 = 0.9
@@ -421,7 +610,7 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
   row.names(plot_median) <- paste("Cluster_", pop_list, ":",cell_number,sep = "")
   colnames(plot_median) <- gsub("^.*?_","",marker_list)
   plot_median <- data.frame(plot_median)
-  dista <- hclust(as.dist(1-cor(t(plot_median))), method = "complete")
+  dista <- hclust(as.dist(1-cor(t(plot_median))), method = cellcluster.hclust.method)
   plot_median <- scale(plot_median)
   plot_median <- t(scale(t(plot_median)))
   plot_median <- as.matrix(plot_median)
@@ -484,10 +673,20 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
   print("Dimension reduction may take sometime depending on the size of the data and number of samples..")
 
   set.seed(59)
-  pca_out <- prcomp(data[,grep("FILE|population|BARCODE|^CD45$", colnames(data), ignore.case = T, invert = T)], center = TRUE, scale. = FALSE)
+  pca_out <- prcomp(data[,grep("FILE|population|BARCODE|^CD45$", colnames(data), ignore.case = T, invert = T)],
+                    retx = stats.prcomp.integrated.retx,
+                    center = stats.prcomp.integrated.center,
+                    scale. = stats.prcomp.integrated.scale.,
+                    tol = stats.prcomp.integrated.tol,
+                    rank. = stats.prcomp.integrated.rank.)
 
   set.seed(59)
-  umap_out <- umap::umap(data[,grep("FILE|population|BARCODE|^CD45$", colnames(data), ignore.case = T, invert = T)], pca = FALSE, perplexity = 30)
+  umap_out <- umap::umap(data[,grep("FILE|population|BARCODE|^CD45$", colnames(data), ignore.case = T, invert = T)],
+                         pca = FALSE,
+                         perplexity = 30,
+                         # config = umap.config,
+                         method = umap.method,
+                         preserve.seed = umap.preserve.seed)
 
   plot_out <- data.frame(PC1 = pca_out$x[,1], PC2 = pca_out$x[,2],
                          UMAP1 = umap_out$layout[,1], UMAP2 = umap_out$layout[,2])
@@ -644,9 +843,37 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
   code_sizes <- table(factor(som$map$mapping[,1], levels = 1:nrow(codes)))
   code_sizes <- as.numeric(code_sizes)
   set.seed(59)
-  umap_out <- umap(codes)
-  tsne_out <- Rtsne(codes)
-  pca_out <- prcomp(codes, center = TRUE, scale. = FALSE)
+  umap_out <- umap(codes,
+                   # config = umap.somcodes.config,
+                   method = umap.somcodes.method,
+                   preserve.seed = umap.somcodes.preserve.seed)
+  tsne_out <- Rtsne(codes,
+                    dims = rtsne.somcodes.dims,
+                    initial_dims = rtsne.somcodes.initial_dims,
+                    perplexity = rtsne.somcodes.perplexity,
+                    theta = rtsne.somcodes.theta,
+                    check_duplicates = rtsne.somcodes.check_duplicates,
+                    pca = rtsne.somcodes.pca,
+                    partial_pca = rtsne.somcodes.partial_pca,
+                    max_iter = rtsne.somcodes.max_iter,
+                    is_distance = rtsne.somcodes.is_distance,
+                    Y_init = rtsne.somcodes.Y_init,
+                    pca_center = rtsne.somcodes.pca_center,
+                    pca_scale = rtsne.somcodes.pca_scale,
+                    normalize = rtsne.somcodes.normalize,
+                    # stop_lying_iter = rtsne.somcodes.stop_lying_iter,
+                    # mom_switch_iter = rtsne.somcodes.mom_switch_iter,
+                    momentum = rtsne.somcodes.momentum,
+                    final_momentum = rtsne.somcodes.final_momentum,
+                    eta = rtsne.somcodes.eta,
+                    exaggeration_factor = rtsne.somcodes.exaggeration_factor,
+                    num_threads = rtsne.somcodes.num_threads)
+  pca_out <- prcomp(codes,
+                    retx = stats.prcomp.somcodes.retx,
+                    center = stats.prcomp.somcodes.center,
+                    scale. = stats.prcomp.somcodes.scale.,
+                    tol = stats.prcomp.somcodes.tol,
+                    rank. = stats.prcomp.somcodes.rank.)
   codes_dr <- data.frame(UMAP1 = umap_out$layout[,1], UMAP2 = umap_out$layout[,2],
                          tSNE1 = tsne_out$Y[, 1], tSNE2 = tsne_out$Y[, 2],
                          PC1 = pca_out$x[, 1], PC2 = pca_out$x[, 2])
@@ -680,7 +907,7 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
     length_c3 = as.numeric(unlist(lapply(current3, length)))
     median_c3 <- as.numeric(lapply(current3, median))
     median_c3c0 <- (median_c3+1)/(median_c0+1)
-    node_list3 = marker_list[ifelse(median_c3c0 > 1.25 & length_c3 > 3 & is.na(median_c3c0) == FALSE, TRUE, FALSE)][order(median_c3c0[which(ifelse(median_c3c0 > 1.25 & length_c3 > 3 & is.na(median_c3c0) == FALSE, TRUE, FALSE))], decreasing = T)]
+    node_list3 = marker_list[ifelse(median_c3c0 > min.cluster.medianexpr.fc & length_c3 > min.cluster.num.cells & is.na(median_c3c0) == FALSE, TRUE, FALSE)][order(median_c3c0[which(ifelse(median_c3c0 > min.cluster.medianexpr.fc & length_c3 > min.cluster.num.cells & is.na(median_c3c0) == FALSE, TRUE, FALSE))], decreasing = T)]
     if (length(node_list3) == 0){
       node_name3 = "UNDEFINED"
     }else{
@@ -704,7 +931,7 @@ CyTOFPip <- function(project_name = "Ursa_CyTOF",
     length_c3 = as.numeric(unlist(lapply(current3, length)))
     median_c3 <- as.numeric(lapply(current3, median))
     median_c3c0 <- (median_c3+1)/(median_c0+1)
-    node_list3 = marker_list[ifelse(median_c3c0 > 1.25 & length_c3 > 3 & is.na(median_c3c0) == FALSE, TRUE, FALSE)][order(median_c3c0[which(ifelse(median_c3c0 > 1.25 & length_c3 > 3 & is.na(median_c3c0) == FALSE, TRUE, FALSE))], decreasing = T)]
+    node_list3 = marker_list[ifelse(median_c3c0 > min.somnode.medianexpr.fc & length_c3 > min.somnode.num.cells & is.na(median_c3c0) == FALSE, TRUE, FALSE)][order(median_c3c0[which(ifelse(median_c3c0 > min.somnode.medianexpr.fc & length_c3 > min.somnode.num.cells & is.na(median_c3c0) == FALSE, TRUE, FALSE))], decreasing = T)]
     if (length(node_list3) == 0){
       node_name3 = "UNDEFINED"
     }else{

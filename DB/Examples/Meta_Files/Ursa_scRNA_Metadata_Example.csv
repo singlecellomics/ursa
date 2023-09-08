@@ -1,0 +1,7 @@
+File_Name;Sample_ID;Batch;Group
+S1_feature_bc_matrix.h5;S1;1;Healthy
+S2_feature_bc_matrix.h5;S2;1;Healthy
+S3_feature_bc_matrix.h5;S3;2;Healthy
+S4_feature_bc_matrix.h5;S4;2;Diseased
+S5_feature_bc_matrix.h5;S5;2;Diseased
+S6_feature_bc_matrix.h5;S6;2;Diseased

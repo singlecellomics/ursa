@@ -1,9 +1,9 @@
 ############################################################################################################
 # Ursa: an automated multi-omics package for single-cell analysis
 # Megrez: scCNV
-# Version: V1.1.0
+# Version: V1.2.0
 # Creator: Lu Pan, Karolinska Institutet, lu.pan@ki.se
-# Date: 2022-02-15
+# Last Update Date: 2023-01-29
 ############################################################################################################
 #' @include ini.R
 #' @include common.R
@@ -51,22 +51,95 @@ NULL
 #' A new folder with the given project name with time stamp as suffix will be
 #' created under the specified output directory.
 #' @param pheno_file Meta data file directory. Accept only .csv/.txt format files.
+#' @param diploid.min.event_confidence Filter diploid cells with a minimum copy number
+#' event confidence threshold. Default to 100. Refer to:
+#' https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/algorithms/cnv_calling
+#' @param nondiploid.min.event_confidence Filter non-diploid cells with a minimum copy number
+#' event confidence threshold. Default to 100. Refer to:
+#' https://support.10xgenomics.com/single-cell-dna/software/pipelines/latest/algorithms/cnv_calling
 #' @param confidence_threshold_quantile CNV event confidence threshold by quantile percentage.
 #'  Default is above 25% quantile of data event confidence.
 #' @param size_threshold_quantile CNV event length threshold by quantile percentage.
 #' Default to 25% quantile of data CNV event length.
 #' @param cnv_cell_threshold Filtering out CNV events that are present in less than N% of all cells.
 #' Values range from 0 to 100. Default to 5.
-#'
+#' @param min.cnv_event_size Filtering out CNV events with an interval of less than the indicated threshold.
+#' Default to the CNV event length threshold (i.e., size_threshold_quantile) percent quantile of
+#' the CNV event lengths.
+#' @param min.cnv_event_confidence Filtering out CNV events with event confidence less than the indicated threshold.
+#' Default to the CNV event confidence threshold (i.e., confidence_threshold_quantile) percent quantile of
+#' the CNV event confidences.
+#' @param min.mappable.size Filtering out CNV events with an mappable region interval of less than the indicated threshold.
+#' Default to the CNV event length threshold (i.e., size_threshold_quantile) percent quantile of
+#' the mappable region intervals.
 #' @export
 #'
 scCNVPip <- function(project_name = "Ursa_scCNV",
                      input_dir = "./",
                      output_dir = "./",
                      pheno_file,
+                     
+                     # QC
+                     diploid.min.event_confidence = 100,
+                     nondiploid.min.event_confidence = 100,
+                     
                      confidence_threshold_quantile = 25,
                      size_threshold_quantile = 25,
-                     cnv_cell_threshold = 5){
+                     cnv_cell_threshold = 5,
+
+                     # hclust
+                     region_type.hclust.method = "complete",
+                     
+                     # Filtering CNV
+                     min.cnv_event_size = NULL,
+                     min.cnv_event_confidence = NULL,
+                     min.mappable.size = NULL,
+                     
+                     # find.clusters
+                     adegenet.find.clusters.clust = NULL,
+                     adegenet.find.clusters.n.pca = 200,
+                     adegenet.find.clusters.n.clust = NULL,
+                     adegenet.find.clusters.method = "kmeans",
+                     adegenet.find.clusters.stat = "BIC",
+                     adegenet.find.clusters.choose.n.clust = FALSE,
+                     adegenet.find.clusters.criterion = "goodfit",
+                     adegenet.find.clusters.max.n.clust = 10,
+                     adegenet.find.clusters.n.iter = 1e5,
+                     adegenet.find.clusters.n.start = 10,
+                     adegenet.find.clusters.center = TRUE,
+                     adegenet.find.clusters.scale = TRUE,
+                     adegenet.find.clusters.pca.select = "nbEig",
+                     adegenet.find.clusters.perc.pca = NULL,
+                     adegenet.find.clusters.dudi = NULL,
+                     
+                     # dapc
+                     adegenet.dapc.n.pca = 200,
+                     adegenet.dapc.n.da = 10,
+                     adegenet.dapc.center = TRUE,
+                     adegenet.dapc.scale = FALSE,
+                     adegenet.dapc.var.contrib = TRUE,
+                     adegenet.dapc.var.loadings = FALSE,
+                     adegenet.dapc.pca.info = TRUE,
+                     adegenet.dapc.pca.select = "nbEig",
+                     adegenet.dapc.perc.pca = NULL,
+                     adegenet.dapc.dudi = NULL,
+                     
+                     # umap
+                     # umap.config = umap.defaults,
+                     umap.method = "naive",
+                     umap.preserve.seed = TRUE,
+
+                     # hclust
+                     cell_binary_cnv.hclust.method = "complete",
+                     
+                     # hclust
+                     ploidy.hclust.method = 'complete',
+                     
+                     # fastme.bal
+                     ape.fastme.bal.nni = TRUE,
+                     ape.fastme.bal.spr = TRUE,
+                     ape.fastme.bal.tbr = FALSE){
+  
   print("Initialising pipeline environment..")
   pheno_data <- pheno_ini(pheno_file, pipeline = "scCNV", isDir = T)
   ctime <- time_ini()
@@ -75,7 +148,8 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
   project_name <- gsub("\\s+|\\(|\\)|-|\\/|\\?","",project_name)
   print(paste("Creating output folder ",project_name,"_",ctime," ..", sep = ""))
   cdir <- paste(output_dir,project_name,"_",ctime,"/", sep = "")
-  dir.create(cdir)
+  dir.create(cdir, recursive = T)
+  
   sample_files <- list.files(input_dir, recursive = T, full.names = T)
   sample_files <- sample_files[grep("_MACOSX",sample_files, ignore.case = T, invert = T)]
   sample_files <- sample_files[grep(gsub(".*\\/(.*)","\\1",pheno_file, ignore.case = T),sample_files, ignore.case = T, invert = T)]
@@ -166,8 +240,8 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
       cell_stats$id <- row.names(cell_stats)
       current$Cell_Ploidy <- cell_stats[match(current$id, cell_stats$id),"Cell_Ploidy"]
       current$CID <- paste(current$id, current$range, sep = "-")
-      temp <- current[which(tolower(current$Cell_Ploidy) == "diploid" & current$event_confidence > 100),]
-      temp <- rbind(temp, current[which(tolower(current$Cell_Ploidy) != "diploid" & current$event_confidence > quantile(current$event_confidence, confidence_threshold_quantile/100)),])
+      temp <- current[which(tolower(current$Cell_Ploidy) == "diploid" & current$event_confidence > diploid.min.event_confidence),]
+      temp <- rbind(temp, current[which(tolower(current$Cell_Ploidy) != "diploid" & current$event_confidence > nondiploid.min.event_confidence),])
       temp <- rbind(temp, current[which(current$range %in% temp$range & !current$CID %in% temp$CID),])
       temp <- reshape2::dcast(temp, formula = range~id, value.var = "Region_type_numeric")
       temp[is.na(temp)] <- 0
@@ -176,7 +250,7 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
       start_time <- Sys.time()
       temp <- as.matrix(temp)
       print("Running clustering..")
-      hc <- hclust(dist(t(temp)), method='complete')
+      hc <- hclust(dist(t(temp)), method = region_type.hclust.method)
       end_time <- Sys.time()
       print(paste("Clustering took ", round(end_time - start_time, digits = 3), " minutes..",sep = ""))
       hc_summary[[i]] <- hc
@@ -209,9 +283,22 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
   data_mappable$Size <- data_mappable$end - data_mappable$start
   selected_data <- data[grep("non-diploid", data$Cell_type, ignore.case = T),]
   selected_data$cell_id <- paste(selected_data$Sample, selected_data$id, sep = "_")
-  selected_data_group <- data_group[which(data_group$Size >= quantile(data_group$Size, size_threshold_quantile/100) & data_group$event_confidence > quantile(data_group$event_confidence, confidence_threshold_quantile/100)),]
+  
+  if(is.null(min.cnv_event_size)){
+    min.cnv_event_size <- quantile(data_group$Size, size_threshold_quantile/100)
+  }
+  
+  if(is.null(min.cnv_event_confidence)){
+    min.cnv_event_confidence <- quantile(data_group$event_confidence, confidence_threshold_quantile/100)
+  }
+  
+  if(is.null(min.mappable.size)){
+    min.mappable.size <- quantile(data_mappable$Size, size_threshold_quantile/100)
+  }
+  
+  selected_data_group <- data_group[which(data_group$Size >= min.cnv_event_size & data_group$event_confidence > min.cnv_event_confidence),]
   selected_data_group <- selected_data_group[which(!selected_data_group$copy_number == 2),]
-  selected_data_mappable <- data_mappable[which(data_mappable$Size >= quantile(data_mappable$Size, size_threshold_quantile/100)),]
+  selected_data_mappable <- data_mappable[which(data_mappable$Size >= min.mappable.size),]
   final_data_group <- NULL
   for(i in 1:nrow(selected_data_mappable)){
     temp <- selected_data_group[which((selected_data_group$Sample == selected_data_mappable[i,"Sample"]) &
@@ -276,18 +363,47 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
   cell_binary_cnv <- cell_binary_cnv[,grep("cell_id", colnames(cell_binary_cnv), ignore.case = T, invert = T)]
 
   print(paste("Running dimension reduction and clustering.. ", sep = ""))
-  cell_groups <- find.clusters(cell_binary_cnv, max.n.clust=10, n.pca = 200, choose.n.clust = F, criterion = "goodfit")
-  dapc_out <- dapc(cell_binary_cnv, cell_groups$grp, n.pca = 200, n.da = 10)
+  cell_groups <- find.clusters(cell_binary_cnv,
+                               clust = adegenet.find.clusters.clust,
+                               n.pca = adegenet.find.clusters.n.pca,
+                               n.clust = adegenet.find.clusters.n.clust,
+                               method = adegenet.find.clusters.method,
+                               stat = adegenet.find.clusters.stat,
+                               choose.n.clust = adegenet.find.clusters.choose.n.clust,
+                               criterion = adegenet.find.clusters.criterion,
+                               max.n.clust = adegenet.find.clusters.max.n.clust,
+                               n.iter = adegenet.find.clusters.n.iter,
+                               n.start = adegenet.find.clusters.n.start,
+                               center = adegenet.find.clusters.center,
+                               scale = adegenet.find.clusters.scale,
+                               pca.select = adegenet.find.clusters.pca.select,
+                               perc.pca = adegenet.find.clusters.perc.pca,
+                               dudi = adegenet.find.clusters.dudi)
+  dapc_out <- dapc(cell_binary_cnv,
+                   grp = cell_groups$grp,
+                   n.pca = adegenet.dapc.n.pca,
+                   n.da = adegenet.dapc.n.da,
+                   center = adegenet.dapc.center,
+                   scale = adegenet.dapc.scale,
+                   var.contrib = adegenet.dapc.var.contrib,
+                   var.loadings = adegenet.dapc.var.loadings,
+                   pca.info = adegenet.dapc.pca.info,
+                   pca.select = adegenet.dapc.pca.select,
+                   perc.pca = adegenet.dapc.perc.pca,
+                   dudi = adegenet.dapc.dudi)
   # print(head(dapc_out))
   dc_cnvs <- dapc_out$var.contr
-  umap_out <- umap::umap(cell_binary_cnv)
+  umap_out <- umap::umap(cell_binary_cnv, 
+                         # config = umap.config,
+                         method = umap.method,
+                         preserve.seed = umap.preserve.seed)
   umap_coords <- data.frame(UMAP_1 = umap_out$layout[,1], UMAP_2 = umap_out$layout[,2],
                             cell_id = row.names(umap_out$layout))
   umap_coords$Cluster <- dapc_out$assign[match(umap_coords$cell_id,row.names(dapc_out$posterior))]
   umap_coords <- umap_coords[order(umap_coords$Cluster, decreasing = F),]
   umap_coords$cell_id <- factor(umap_coords$cell_id, levels = unique(umap_coords$cell_id))
 
-  hc_cnv <- hclust(dist(t(cell_binary_cnv)), method='complete')
+  hc_cnv <- hclust(dist(t(cell_binary_cnv)), method=cell_binary_cnv.hclust.method)
   binary_cnv_events <- cell_binary_cnv
   binary_cnv_events$cell_id <- row.names(cell_binary_cnv)
   binary_cnv_events <- reshape2::melt(binary_cnv_events)
@@ -318,7 +434,7 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
     x <- temp[[i]]
     if(nrow(x) > 1){
       x$Ploidy <- gsub(">=10","10",x$Ploidy)
-      y <- x[which(x$event_confidence > quantile(x$event_confidence > confidence_threshold_quantile/100)),]
+      y <- x[which(x$event_confidence > quantile(x$event_confidence, confidence_threshold_quantile/100)),]
       y <- rbind(y, x[which(x$range %in% y$range & !x$CID %in% y$CID),])
       if(nrow(y) > 100){
         x <- y
@@ -327,7 +443,7 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
       row.names(x) <- x$range
       x <- x[,which(colnames(x) != "range")]
       x[is.na(x)] <- 0
-      hc <- fastcluster::hclust(dist(t(x)), method='complete')
+      hc <- fastcluster::hclust(dist(t(x)), method=ploidy.hclust.method)
       x <- data.frame(Cluster = unique(temp[[i]]$Cluster), cell_id = colnames(x)[hc$order])
       temp[[i]] <- x
     }
@@ -372,7 +488,10 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
   dcast_cn_clusters[is.na(dcast_cn_clusters)] <- 0
   row.names(dcast_cn_clusters) <- dcast_cn_clusters$cell_id
   dcast_cn_clusters <- dcast_cn_clusters[,grep("cell_id", colnames(dcast_cn_clusters), ignore.case = T, invert = T)]
-  tree_est <- fastme.bal(dist(t(dcast_cn_clusters)))
+  tree_est <- fastme.bal(dist(t(dcast_cn_clusters)),
+                         nni = ape.fastme.bal.nni,
+                         spr = ape.fastme.bal.spr,
+                         tbr = ape.fastme.bal.tbr)
 
   plotx <- split(cn_clusters, cn_clusters$Cluster)
   plotx <- lapply(plotx, function(x){
@@ -451,7 +570,7 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
 
   p <- NULL
   p <- ggtree(tree_est, layout="daylight",
-              branch.length = c(tree_est$plotx$Size/300,rep(min(tree_est$plotx$Size/300),(nrow(tree_est$edge)+1) - nrow(tree_est$plotx))),
+              branch.length = "none", # c(tree_est$plotx$Size/300,rep(min(tree_est$plotx$Size/300),(nrow(tree_est$edge)+1) - nrow(tree_est$plotx)))
               aes(color = group,
                   size = c(tree_est$plotx$Size/50,rep(min(tree_est$plotx$Size/100),(nrow(tree_est$edge)+1) - nrow(tree_est$plotx))))) +
     geom_tiplab(hjust = -2, offset=.1) +
@@ -464,7 +583,7 @@ scCNVPip <- function(project_name = "Ursa_scCNV",
   print(p)
   dev.off()
 
-  saveRDS(results, paste(cdir,"9URSA_DATA_scCNV_RESULT_",results$project,".RDS", sep = ""))
+  saveRDS(results, paste(cdir,"9URSA_DATA_scCNV_RESULTS_",results$project,".RDS", sep = ""))
   print("Completed!")
 
 }
