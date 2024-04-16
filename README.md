@@ -1,4 +1,4 @@
-![Ursa logo](https://user-images.githubusercontent.com/5945741/165857896-912bfe07-f290-483c-bb96-d5ff21db1ab6.png)
+![Ursa logo](https://github.com/singlecellomics/ursa/assets/5945741/2e3c3a17-de9f-414d-84df-a2a0a5bc0244)
 
 # Ursa: an automated multi-omics package for single-cell analysis
 
