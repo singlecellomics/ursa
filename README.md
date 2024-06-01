@@ -7,7 +7,7 @@ __Ursa__ is an R package consisting of seven single-cell omics automated analysi
 If you are using Ursa, please cite:
 Lu Pan, Tian Mou, Yue Huang, Weifeng Hong, Min Yu, Xuexin Li, Ursa: A Comprehensive Multiomics Toolbox for High-Throughput Single-Cell Analysis, Molecular Biology and Evolution, Volume 40, Issue 12, December 2023, msad267, https://doi.org/10.1093/molbev/msad267
 
-# Note: Only Lu Pan and Xuexin Li who oversaw the entire process.
+#### Note: Only Lu Pan and Xuexin Li who oversaw the entire process.
 
 Six single-cell (sc) omics and one bulk omics include:
 
